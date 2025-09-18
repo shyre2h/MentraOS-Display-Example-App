@@ -1,64 +1,63 @@
-# MentraOS-Display-Example-App
+# MentraOS Karaoke App for Even Realities G1 AR Glasses
 
-### Install MentraOS on your phone
+A voice-activated karaoke application that displays scrolling lyrics on AR glasses. Users can start songs by saying the title or by singing any line from a song.
 
-MentraOS install links: [mentra.glass/install](https://mentra.glass/install)
+## Features
 
-### (Easiest way to get started) Set up ngrok
+- **Voice-Activated Song Selection**: Say a song title to start karaoke
+- **Smart Lyric Matching**: Start singing any line and the app will sync to that point
+- **Auto-Scrolling Lyrics**: Lyrics scroll automatically at adjustable speed
+- **Local Lyrics Database**: No internet required - all lyrics stored locally
+- **Speed Control**: Say "faster" or "slower" to adjust scrolling speed
+- **Stop Command**: Say "stop" to end the current song
 
-1. `brew install ngrok`
+## Song Library
 
-2. Make an ngrok account
+The app includes lyrics for popular Gujarati, Hindi, and regional songs including:
+- Mogal Thay Madi
+- Bhuvapani
+- Hu Ru Ru
+- Charan Ni Sarkar
+- Dwarika No Nath
+- Tali Pado
+- Baby Ne Bournvita
+- Kajra Re
+- Pardesiya
+- Ramta Jogi
+- And many more!
 
-3. [Use ngrok to make a static address/URL](https://dashboard.ngrok.com/)
+## Usage
 
-### Register your App with MentraOS
+1. Put on your Even Realities G1 AR glasses
+2. Launch the "Live Lyrics" app from MentraOS
+3. Say a song title or start singing any line from a song
+4. Enjoy karaoke with auto-scrolling lyrics!
 
-1. Navigate to [console.mentra.glass](https://console.mentra.glass/)
+## Voice Commands
 
-2. Click "Sign In", and log in with the same account you're using for MentraOS
+- **Start a song**: Say the song title (e.g., "Mogal Thay Madi")
+- **Sync with singing**: Start singing any line and the app will jump to that point
+- **Speed control**: Say "faster" or "slower" to adjust scrolling speed
+- **Stop**: Say "stop" to end the current song
 
-3. Click "Create App"
+## Technical Details
 
-4. Set a unique package name like `com.yourName.yourAppName`
+- Built with TypeScript and MentraOS SDK
+- Uses Fuse.js for fuzzy text matching
+- Local lyrics database with smart search
+- Configurable scrolling speed (default: 30 lines/minute)
 
-5. For "Public URL", enter your Ngrok's static URL
+## Installation
 
-6. In the edit app screen, add the microphone permission
+1. Replace the code in your existing MentraOS app with the files from this repository
+2. Install dependencies: `bun install`
+3. Set environment variables in `.env`
+4. Deploy to your MentraOS console
 
-### Get your App running!
+## Environment Variables
 
-1. [Install bun](https://bun.sh/docs/installation)
-
-2. Create a new repo from this template using the `Use this template` dropdown in the upper right or the following command: `gh repo create --template Mentra-Community/MentraOS-Cloud-Example-App`
-
-    ![Create repo from template](https://github.com/user-attachments/assets/c10e14e8-2dc5-4dfa-adac-dd334c1b73a5)
-
-3. Clone your new repo locally: `git clone <your-repo-url>`
-
-4. cd into your repo, then type `bun install`
-
-5. Set up your environment variables:
-   * Create a `.env` file in the root directory by copying the example: `cp .env.example .env`
-   * Edit the `.env` file with your app details:
-     ```
-     PORT=3000
-     PACKAGE_NAME=com.yourName.yourAppName
-     MENTRAOS_API_KEY=your_api_key_from_console
-     ```
-   * Make sure the `PACKAGE_NAME` matches what you registered in the MentraOS Console
-   * Get your `API_KEY` from the MentraOS Developer Console
-
-6. Run your app with `bun run dev`
-
-7. To expose your app to the internet (and thus MentraOS) with ngrok, run: `ngrok http --url=<YOUR_NGROK_URL_HERE> 3000`
-    * `3000` is the port. It must match what is in the app config. For example, if you entered `port: 8080`, use `8080` for ngrok instead.
-
-
-### Next Steps
-
-Check out the full documentation at [docs.mentra.glass](https://docs.mentra.glass/core-concepts)
-
-#### Subscribing to events
-
-You can listen for transcriptions, translations, and other events within the onSession function.
+```
+PACKAGE_NAME=org.justinmatamala.livelyrics
+MENTRAOS_API_KEY=your_api_key_here
+PORT=3000
+```
