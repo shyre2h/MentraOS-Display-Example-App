@@ -80,9 +80,22 @@ class UltraFastKaraokeMentraApp extends AppServer {
           console.log('Request headers:', JSON.stringify(Object.fromEntries(req.headers), null, 2));
           console.log('Request query:', JSON.stringify(Object.fromEntries(url.searchParams), null, 2));
 
-          // Assume userId is 'shyre1234@gmail.com' for testing
-          const userId = 'shyre1234@gmail.com';
+          // Extract token from Authorization header
+          const authHeader = req.headers.get('authorization');
+          let userId = null;
+          if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.substring(7);
+            console.log('Received token:', token);
+            // For now, assume token is the userId (in production, verify JWT)
+            userId = token; // Placeholder: decode JWT to get userId
+          }
+
           console.log('Extracted userId:', userId);
+
+          if (!userId) {
+            console.log('No userId found, returning 401');
+            return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+          }
 
           const result = this.handleApiNotes(userId);
           if (result.error) {
