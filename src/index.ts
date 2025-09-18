@@ -1,6 +1,7 @@
 import { AppServer, AppSession } from '@mentra/sdk';
 import { ViewType } from '@mentra/sdk';
-import { Song, songsDatabase, searchSongs, getSongsByCategory } from './songs-database';
+import type { Song } from './songs-database';
+import { songsDatabase, searchSongs, getSongsByCategory } from './songs-database';
 
 interface KaraokeSession {
   currentSong: Song | null;
@@ -23,7 +24,10 @@ interface KaraokeSession {
 
 class UltraFastKaraokeMentraApp extends AppServer {
   private karaokeSessions: Map<string, KaraokeSession> = new Map();
-  
+
+  // HTTP server for API
+  private httpServer: any;
+
   // Precomputed word maps for instant matching
   private wordMaps: Map<string, Set<string>> = new Map();
   
@@ -65,6 +69,31 @@ class UltraFastKaraokeMentraApp extends AppServer {
     this.precomputeWordMaps();
     this.trainOnSongTitles();
     this.buildSongTitleWordSet();
+
+    // Start HTTP server for API
+    this.httpServer = Bun.serve({
+      port: 3001,
+      fetch: (req) => {
+        const url = new URL(req.url);
+        if (req.method === 'GET' && url.pathname === '/api/notes') {
+          console.log('API /api/notes called');
+          console.log('Request headers:', JSON.stringify(Object.fromEntries(req.headers), null, 2));
+          console.log('Request query:', JSON.stringify(Object.fromEntries(url.searchParams), null, 2));
+
+          // Assume userId is 'shyre1234@gmail.com' for testing
+          const userId = 'shyre1234@gmail.com';
+          console.log('Extracted userId:', userId);
+
+          const result = this.handleApiNotes(userId);
+          if (result.error) {
+            return new Response(JSON.stringify({ error: result.error }), { status: result.status, headers: { 'Content-Type': 'application/json' } });
+          }
+          return new Response(JSON.stringify(result), { headers: { 'Content-Type': 'application/json' } });
+        }
+        return new Response('Not found', { status: 404 });
+      }
+    });
+    console.log('HTTP server started on port 3001');
   }
 
   // Get priority songs first, then remaining songs
@@ -1166,7 +1195,7 @@ class UltraFastKaraokeMentraApp extends AppServer {
   private startKaraokeInstantly(session: AppSession, sessionId: string, song: Song) {
     try {
       const karaokeSession = this.getKaraokeSession(sessionId);
-      
+
       karaokeSession.currentSong = song;
       karaokeSession.currentLineIndex = 0;
       karaokeSession.currentWordIndex = 0;
@@ -1175,7 +1204,7 @@ class UltraFastKaraokeMentraApp extends AppServer {
       karaokeSession.showingMenu = false;
       karaokeSession.currentSearchText = '';
       karaokeSession.isProcessing = false;
-      
+
       this.clearSearchTimeout(sessionId);
       this.clearDisplayTimeout(sessionId);
 
@@ -1188,6 +1217,26 @@ class UltraFastKaraokeMentraApp extends AppServer {
       console.error('Error starting karaoke:', error);
       this.safeDisplay(session, 'Error starting karaoke. Say "menu" to retry.');
     }
+  }
+
+  // API endpoint for fetching notes (songs)
+  private handleApiNotes(userId: string): any {
+    console.log('API /api/notes called');
+    console.log('Extracted userId:', userId);
+
+    if (!userId) {
+      console.log('No userId found, returning 401');
+      return { error: 'Unauthorized', status: 401 };
+    }
+
+    // Return the prioritized songs with cleaned lyrics
+    const notes = this.getPrioritizedSongs().map(song => ({
+      title: song.title,
+      lyrics: song.lyrics.map(line => line.replace(/[.,!?;()\-"']/g, '')) // Clean punctuation to match expected pattern
+    }));
+
+    console.log(`Returning ${notes.length} notes for user ${userId}`);
+    return { notes };
   }
 }
 
